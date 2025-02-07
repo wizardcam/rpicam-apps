@@ -3,6 +3,7 @@
 #include "output.hpp"
 #include <libmemcached/memcached.hpp>
 #include <hiredis/hiredis.h>
+#include <opencv2/opencv.hpp>
 
 class MemcachedOutput : public Output
 {

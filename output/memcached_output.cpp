@@ -97,14 +97,27 @@ void MemcachedOutput::testRedisConnection() {
 
 void MemcachedOutput::outputBuffer(void *mem, size_t size, int64_t /*timestamp_us*/ J, uint32_t /*flags*/)
 {
-	int64_t t =
+	// Convert raw memory buffer to OpenCV Mat (Assuming it's a grayscale 8-bit image)
+    cv::Mat img(opt->height, opt->width, CV_8UC1, mem);
+
+    // Encode the image in BMP format
+    std::vector<uchar> bmp_data;
+    if (!cv::imencode(".bmp", img, bmp_data)) {
+        LOG_ERROR("Failed to encode image to BMP format");
+        return;
+    }
+    
+    int64_t t =
 		std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
 			.count();
 	char timestamp[16];
 	sprintf(timestamp, "%li", t);
 	// Flag set to 16 since the python bmemcached protocol library recognizes binary data with flag 16
 	// This way the bmemcached library does not decode when reading.
-	memcached_return_t rc = memcached_set(memc, timestamp, strlen(timestamp), (char *)mem, size,(time_t)0, (uint32_t)16);
+	// Store the BMP-encoded image in Memcached
+    memcached_return_t rc = memcached_set(memc, timestamp, strlen(timestamp), 
+                                          reinterpret_cast<char*>(bmp_data.data()), bmp_data.size(), 
+                                          (time_t)0, (uint32_t)16);
 	
 	if (rc == MEMCACHED_SUCCESS)
 	{
