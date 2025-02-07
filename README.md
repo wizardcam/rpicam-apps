@@ -1,5 +1,6 @@
 # rpicam-apps
-This is a small suite of libcamera-based applications to drive the cameras on a Raspberry Pi platform. It is forked from the official repo and we have written our own outputs functionality for the rpicam-raw app.
+This is a small suite of libcamera-based applications to drive the cameras on a Raspberry Pi platform.
+It is forked from the official repo and we have adapted rpicam-raw to suit our needs.
 
 Official repo status
 ------
@@ -8,48 +9,66 @@ Official repo status
 
 The source code is made available under the simplified [BSD 2-Clause license](https://spdx.org/licenses/BSD-2-Clause.html).
 
-Install Raspi Camera
+Update your raspi
 -----
 
-[Here](https://www.raspberrypi.com/documentation/accessories/camera.html#installing-a-raspberry-pi-camera)
+Make sure your raspi is up to date.
 
 ```sh
-./overlay.sh
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt full-upgrade
+sudo rpi-update
 ```
 
-Reboot now and test afterwards if libcamera-hello works. **Only proceed if it works!** If it doesnt work, make sure `overlay.sh` did work correctly and check `/boot/firmware/config.txt`
+Install OV9281 Camera
+-----
+
+[From here.](https://www.raspberrypi.com/documentation/computers/camera_software.html#configuration)
+
+Edit file `/boot/firmware/config.txt`
+
+Edit line `camera_auto_detect=0`
+
+Add line `dtoverlay=ov9281`
+
+Reboot now and test afterwards if libcamera-hello works. **Only proceed if it works!** If it doesnt work, restart or read the manufacturers docs.
 
 Building
 ------
 
-The following is directly extracted from the [official rpi documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-rpicam-apps-without-building-libcamera). At some point it might be out of date. Just check the documentation for building the apps.
+The following is directly extracted from the [official rpi documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-rpicam-apps-without-building-libcamera).
+At some point it might be out of date.
+Just check the documentation for building the apps.
 
-Internal dependency
+Remove pre-installed rpicam-apps
 ------
 
-Our app require redis and memcached, so install the dev packages.
+```sh
+sudo apt remove --purge rpicam-apps
+```
+
+Building rpicam-apps without building libcamera locally
+------
+
+To build rpicam-apps without first rebuilding libcamera and libepoxy, install libcamera, libepoxy and their dependencies with apt:
+If you do not need support for the GLES/EGL preview window, omit libepoxy-dev.
+
+```sh
+sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 libcamera-dev libepoxy-dev libjpeg-dev libtiff5-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswresample-dev
+```
+
+Our app requires redis and memcached, so install the dev packages.
 
 ```sh
 sudo apt install -y libmemcached-dev libhiredis-dev libssl-dev
-```
-
-Building rpicam-apps without building libcamera
-------
-
-```sh
-sudo apt install -y libcamera-dev libepoxy-dev libjpeg-dev libtiff5-dev libpng-dev
-
-sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5
-
-sudo apt install libavcodec-dev libavdevice-dev libavformat-dev libswresample-dev
 ```
 
 Building rpicam-apps
 ------
 
 ```sh
-sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev
-sudo apt install -y meson ninja-build
+sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev meson ninja-build
 ```
 
 For repeated rebuilds use this script
@@ -58,7 +77,15 @@ For repeated rebuilds use this script
 ./build.sh
 ```
 
-Memcached installation
+Make sure the memcached configurations are equal to `memcached.conf`. 
+
+Container Memcached & Redis (recommended)
+------
+
+See seampilot/services/infrastructure.yml to have a memcached and redis instance.
+`docker compose up -f infrastructure.yml -d`
+
+Local Memcached (not recommended)
 ------
 
 ```sh
@@ -72,20 +99,14 @@ sudo chmod 2750 /var/run/memcached
 sudo ldconfig
 ```
 
-Make sure the memcached configurations are equal to `memcached.conf`. 
-
-The SeamPilot rpicam-app
+SeamPilot rpicam-raw
 ------
 
 We have developed the following files to suit our usecase of capturing frames and saving them to memcached while streaming an event to redis.
-
 In `output/memcached_output.cpp` we define the procedure of saving the images to memcached and writing an event to redis.
-
 In `output/output.cpp` we define the execution argument mem:// which executes the above routine
 
-This is how we would start the app
-
-Make sure to pass width and height.
+This is how we would start the app:
 
 ```sh
 rpicam-raw ---n --framerate 120 --mode 640:400:8 --width 640 --height 400 -o test%05d.raw
