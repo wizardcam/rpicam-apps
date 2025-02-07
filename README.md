@@ -55,21 +55,11 @@ To build rpicam-apps without first rebuilding libcamera and libepoxy, install li
 If you do not need support for the GLES/EGL preview window, omit libepoxy-dev.
 
 ```sh
-sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 libcamera-dev libepoxy-dev libjpeg-dev libtiff5-dev libpng-dev libavcodec-dev libavdevice-dev libavformat-dev libswresample-dev
-```
-
-Our app requires redis and memcached, so install the dev packages.
-
-```sh
-sudo apt install -y libmemcached-dev libhiredis-dev libssl-dev
+./install.sh
 ```
 
 Building rpicam-apps
 ------
-
-```sh
-sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev meson ninja-build
-```
 
 For repeated rebuilds use this script
 
