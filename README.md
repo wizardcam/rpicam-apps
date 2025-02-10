@@ -102,6 +102,7 @@ This is how we would start the app:
 rpicam-raw ---n --framerate 120 --mode 640:400:8 --width 640 --height 400 -o test%05d.raw
 rpicam-raw ---n --framerate 120 --mode 640:400:8 --width 640 --height 400 -o mem:// -t 0 --redis localhost:6379 --memcached localhost:11211
 rpicam-raw ---n --framerate 120 --mode 1280:800:8 --width 1280 --height 800 -o mem:// -t 0 --redis localhost:6379 --memcached localhost:11211
+rpicam-raw ---n --framerate 60 --mode 640:400:8 --width 640 --height 400 -o mem:// -t 0 --redis localhost:6379 --memcached /var/run/memcached/memcached.sock
 ```
 
 Other options:
@@ -117,6 +118,9 @@ Have a look inside `core/options.cpp`
 
 TODO's
 ------
+
+- [ ] Create systemd service
+- [ ] Create debian package which installs and starts systemd service
 
 Search for `TODO` to see what is left to be done.
 
@@ -139,3 +143,38 @@ Created Files
 - overlay.sh
 - raw_frame.ipynb
 - requirements.txt
+
+Creating a debian package (Work in progress)
+------
+
+You'll need the following packages:
+
+```sh
+sudo apt install -y build-essential devscripts debhelper dh-make
+```
+
+Creating the /debian directory (already done, do not repeat)
+------
+
+```sh
+dh_make --createorig -s -y -p rpicam-apps_1.0
+```
+This will create a debian/ directory with template files for packaging.
+
+Once dh_make completes successfully, you can proceed with editing the debian/ files (e.g., control, rules, install) and building the package using dpkg-buildpackage.
+
+Creating the .deb file
+------
+
+Run the following command to build the package.
+
+```sh
+dpkg-buildpackage -us -uc
+```
+This will generate a .deb file in the parent directory.
+
+Install the package locally to test it:
+
+```sh
+sudo dpkg -i ../rpicam-apps_1.0-1_amd64.deb
+```
