@@ -1,5 +1,6 @@
 hiredis_dep = dependency('hiredis', required: true)
 libmemcached_dep = dependency('libmemcached', required: true)
+opencv_dep = dependency('opencv4', required: true)
 
 rpicam_app_src += files([
     'circular_output.cpp',
@@ -17,6 +18,6 @@ output_headers = [
     'memcached_output.hpp',
 ]
 
-rpicam_app_dep += [exif_dep, jpeg_dep, tiff_dep, png_dep, hiredis_dep, libmemcached_dep]
+rpicam_app_dep += [exif_dep, jpeg_dep, tiff_dep, png_dep, hiredis_dep, libmemcached_dep, opencv_dep]
 
 install_headers(files(output_headers), subdir: meson.project_name() / 'output')

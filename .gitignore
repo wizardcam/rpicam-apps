@@ -4,3 +4,4 @@ build
 redis-plus-plus
 *test
 .vscode/
+.venv
