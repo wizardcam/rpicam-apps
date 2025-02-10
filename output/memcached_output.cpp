@@ -146,7 +146,7 @@ void MemcachedOutput::prepareRedisConnection() {
 
 void MemcachedOutput::testRedisConnection() {
     // Test redis
-    redisReply *reply = (redisReply *)redisCommand(redis, "SET LibcameraService Alive");
+    redisReply *reply = (redisReply *)redisCommand(redis, "SET CameraService Alive");
     if (reply == nullptr) {
         LOG_ERROR("Failed to set value in Redis");
     } else {
@@ -184,10 +184,9 @@ void MemcachedOutput::outputBuffer(void *mem, size_t size, int64_t /*timestamp_u
 
     // Build Redis command
     std::string time_str = timestamp;
-    std::string redis_command = "XADD Libcamera ";
+    std::string redis_command = "XADD Bitmaps ";
     redis_command += "MAXLEN ~ 1000 "; // Stream max length of 1000 entries
     redis_command += time_str + " "; // Custom id matching the memcached entry
-    redis_command += "event NewFrame ";
     redis_command += "memcached " + time_str + " ";
     redis_command += "sensor_id Libcamera ";
     redis_command += "joint_key -1 ";
