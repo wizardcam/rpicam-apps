@@ -171,8 +171,11 @@ void MemcachedOutput::outputBuffer(void *mem, size_t size, int64_t /*timestamp_u
     char timestamp[16];
     sprintf(timestamp, "%li", t);
 
+    // Append "-0" to the key
+    std::string memcached_key = std::string(timestamp) + "-0";
+
     // Store the BMP-encoded image in Memcached
-    memcached_return_t rc = memcached_set(memc, timestamp, strlen(timestamp), 
+    memcached_return_t rc = memcached_set(memc, memcached_key.c_str(), memcached_key.length(), 
                                           reinterpret_cast<char*>(bmp_data.data()), bmp_data.size(), 
                                           (time_t)0, (uint32_t)16);
 
@@ -187,7 +190,6 @@ void MemcachedOutput::outputBuffer(void *mem, size_t size, int64_t /*timestamp_u
     std::string redis_command = "XADD Camera ";
     redis_command += "MAXLEN ~ 1000 "; // Stream max length of 1000 entries
     redis_command += time_str + " "; // Custom id matching the memcached entry
-    redis_command += "memcached " + time_str + " ";
     redis_command += "sensor_id Libcamera ";
     redis_command += "width " + std::to_string(opt->width) + " ";
     redis_command += "height " + std::to_string(opt->height) + " ";
