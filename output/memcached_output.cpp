@@ -184,7 +184,7 @@ void MemcachedOutput::outputBuffer(void *mem, size_t size, int64_t /*timestamp_u
 
     // Build Redis command
     std::string time_str = timestamp;
-    std::string redis_command = "XADD Bitmaps ";
+    std::string redis_command = "XADD Camera ";
     redis_command += "MAXLEN ~ 1000 "; // Stream max length of 1000 entries
     redis_command += time_str + " "; // Custom id matching the memcached entry
     redis_command += "memcached " + time_str + " ";
