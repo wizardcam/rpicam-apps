@@ -189,10 +189,6 @@ void MemcachedOutput::outputBuffer(void *mem, size_t size, int64_t /*timestamp_u
     redis_command += time_str + " "; // Custom id matching the memcached entry
     redis_command += "memcached " + time_str + " ";
     redis_command += "sensor_id Libcamera ";
-    redis_command += "joint_key -1 ";
-    redis_command += "track_id -1 ";
-    redis_command += "start_time -1 ";
-    redis_command += "feedback_id -1 ";
     redis_command += "width " + std::to_string(opt->width) + " ";
     redis_command += "height " + std::to_string(opt->height) + " ";
     redis_command += "gain " + std::to_string(opt->gain) + " ";
